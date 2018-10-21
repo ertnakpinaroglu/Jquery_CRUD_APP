@@ -1,0 +1,121 @@
+﻿<script src="~/Scripts/jquery-3.3.1.min.js"></script>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="panel panel-success">
+                <div class="panel-heading">
+                    <h4 class="panel-title"> Create New Employee </h4>
+                </div>
+
+                <div class="panel-body">
+                    <div class="form-horizontal">
+                        <div class="form-group">
+                            <label for="txtName" class="col-md-2">Adiniz</label>
+                            <div class="col-md-10">
+                                @Html.TextBox("txtName", "", new { @class = "form-control" })
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="txtSurname" class="control-label col-md-2">Soyadınız</label>
+                            <div class="col-md-10">
+                                @Html.TextBox("txtSurname", "", new { @class = "form-control" })
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="txtGender" class="control-label col-md-2">Cinsiyetiniz </label>
+                            <div class="col-md-10">
+                                @Html.DropDownList("txtGender",new SelectListItem[] {
+                                new SelectListItem(){Text="Kadın",Value="Kadın"},
+                                new SelectListItem(){Text="Erkek",Value="Erkek"}
+                           },new {@class="form-control" })
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="txtSalary" class="control-label col-md-2">Maaş</label>
+                            <div class="col-md-10">
+                                @Html.TextBox("txtSalary", "", new { @class = "form-control", type = "number" })
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-md-8 col-md-offset-2">
+                                <button type="button" class="btn btn-lg btn-block btn-success" id="btnCreate"> ekle </button>
+                            </div>
+                        </div>
+
+
+
+
+                    </div>
+                </div>
+
+
+
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <ul id="list" class="list-group"></ul>
+        </div>
+    </div>
+</div>
+<script>
+    function LoadEmployees() {
+        var ul = $("#list");
+        ul.empty();
+        $.ajax({
+            method: "GET",
+            url: "../api/Employee",
+            dataType: "json"
+        }).done(function (response, statusText, jqXHR) {
+            if (response == null) {
+                return;
+            }
+            for (var i = 0; i < response.length; i++) {
+                var emp = response[i];
+                var li = $("<li class='list-group-item'> " + emp.Name + " " + emp.Surname + " Gender(" + emp.Gender + ") Salary(" + emp.Salary + "$) </li>");
+                ul.append(li);
+            }
+
+        }).fail(function () {
+            alert("Hata olustu");
+        });
+    }
+    $(function () {
+        LoadEmployees();
+        $("#btnCreate").click(CreateEmployees);
+    });
+    function CreateEmployees() {
+        var txtName = $("#txtName").val();
+        var txtSurname = $("#txtSurname").val();
+        var txtGender = $("#txtGender").val();
+        var txtSalary = $("#txtSalary").val();
+        var emp = {
+            "Name": txtName,
+            "Surname": txtSurname,
+            "Salary": txtSalary,
+            "Gender": txtGender
+        };
+        $.ajax({
+            method: "POST",
+            url: "../api/Employee",
+            dataType: "json",
+            data: emp
+        }).done(function (response, statusText, jqXHr) {
+            if (jqXHr.status == 201) {
+                LoadEmployees();
+                ClearInputs();
+            }
+
+        }).fail(function () {
+            alert("Hata olustu");
+            });
+
+    }
+    function ClearInputs() {
+        $("input").val("");
+    }
+</script>
